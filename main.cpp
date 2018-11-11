@@ -1,162 +1,215 @@
-#include <ctime>
 #include <iostream>
 #include <fstream>
 #include <iomanip>
 #include <string>
 #include <vector>
+#include <ctime>
 #include <algorithm>
-
 using namespace std;
 
-int binarySearch(vector<int>&, int);///function to search
- void quickSort(vector<int>&,vector<int>&,  int, int);
+struct dogs
+{
+  int did;
+  int age;
+};
+struct examine
+{
+  int vid;
+  int did;
+  int fee;
+};
+
+struct vet
+{
+  int vid;
+  int eLevel;
+};
+
+struct found{
+    int did;
+    int age;
+    int vid;
+    int fee;
+    int elevel;
+
+};
+int binary_search_dogs(const vector<dogs>& sorted_vec, int key) {
+   size_t mid, left = 0 ;
+   size_t right = sorted_vec.size(); // one position passed the right end
+   while (left < right) {
+      mid = left + (right - left)/2;
+      if (key > sorted_vec[mid].did){
+          left = mid+1;
+      }
+      else if (key < sorted_vec[mid].did){
+        right = mid;
+      }
+      else {
+        return sorted_vec[mid].age;
+     }
+   }
+    return 0;
+}
+
+int binary_search_vets(const vector<vet>& sorted_vec, int key) {
+   size_t mid, left = 0 ;
+   size_t right = sorted_vec.size(); // one position passed the right end
+   while (left < right) {
+      mid = left + (right - left)/2;
+      if (key > sorted_vec[mid].vid){
+          left = mid+1;
+      }
+      else if (key < sorted_vec[mid].vid){
+        right = mid;
+      }
+      else {
+        return sorted_vec[mid].eLevel;
+     }
+   }
+ return -1;
+}
+int binary_search_foundx(const vector<found>& s, int key) {
+   size_t mid, left = 0 ;
+   size_t right = s.size(); // one position passed the right end
+   while (left < right) {
+      mid = left + (right - left)/2;
+      if (key > s[mid].did){
+          left = mid+1;
+      }
+      else if (key < s[mid].did){
+        right = mid;
+      }
+      else {
+        return mid;
+     }
+   }
+ return -1;
+}
+    bool compare_found(const found &a, const found &b){
+        return a.did < b.did;
+    }
+    bool compare_dogs(const dogs &a, const dogs &b){
+
+        return a.did < b.did;
+    }
+    bool compare_vets(const vet &a, const vet &b){
+
+        return a.vid < b.vid;
+    }
 
 int main()
- {
- ifstream dogFile;
- ifstream xamineFile;
- ifstream vetnameFile;
-
-int did,age,vvid,eLevel;
-int vid, xdid, fee;
-int index = 0;
-
-vector<int> vidArray;
-vector<int> vvidArray;
-vector<int> fLevelArray;
-vector<int> eLevelArray;
-vector<int> didArray;
-vector<int> idArray; // Vector to store did from Dfile
- vector<int> ageArray; // Vector to store age from Xfile
- vector<int> finalageArray; // Vector to store age info after comparison of did's
- vector<int> feeArray; // Vector to store fee from examine after comparison of did's
-
-clock_t start, stop;
-
-cout << "Reading the file and initializing the join algorithm\n";
-
-
-    dogFile.open("Dfile.txt");
-    xamineFile.open("Efile.dms");
-    vetnameFile.open("Vfile.dms");
-
-start=clock();
-
-while (dogFile >> did >> age)
- {
-       if(age>8){
-
-        idArray.push_back(did);
-        ageArray.push_back(age);
-        index++;
-                }
-}
-quickSort(idArray,ageArray,0,1);
-int k=0;
-while (vetnameFile >> vvid >> eLevel )
- {
-       if(eLevel>0){
-
-        vvidArray.push_back(vvid);
-        eLevelArray.push_back(eLevel);
-        index++;
-                }
-}
-quickSort(vvidArray,eLevelArray,0,1);
-
-int coun = 0;
-int val, vall;
-while (xamineFile >> vid >> xdid >> fee)
 {
-     val = binarySearch(idArray, xdid); //  if did of examine is on 'dog'
-     vall = binarySearch(vvidArray, vid);
-    cout << val << " " << vall << endl;
-    if (val != -1 && val != -1) // if did matches, store age and corresponding fee to vectors
-    {
-    finalageArray.push_back(ageArray[val]);
-    feeArray.push_back(fee);
-    //vidArray.push_back(vid);
-    k++;
+int start_s=clock();
+	// the code you wish to time goes here
+  vector<dogs> dog;
+  vector<examine> examination;
+  vector<vet> vets;
+  vector<found> foundx;
+  vector<int> unique_dogs;
+  ifstream DF, EF, VF;
+  int value1, value2, value3;
 
+
+
+
+
+  DF.open("DFile.txt");
+  EF.open("EFile.dms");
+  VF.open("VFile.dms");
+
+cout << "Collecting data from files....\n" << endl;
+
+ while( DF >> value1 >> value2){
+
+    if (value2 > 8){
+    dogs x = {value1, value2};
+    dog.push_back(x);
     }
-}
-cout << k << endl;
 
-dogFile.close();
-xamineFile.close();
-vetnameFile.close();
+ }
+ int count0 = 0;
+ sort(dog.begin(), dog.end(), compare_dogs);
 
 
-quickSort(finalageArray,feeArray ,0,k-1);
-cout << "\nAge\t"<< "COUNT(*)" <<"AVG(x.fee)\t"<<"eLevel\n";
 
-int n=0;
-fee=0;
+  while(VF >> value1 >> value2){
 
-while (n < k)
- {
- eLevel=eLevelArray[n];
- age = finalageArray[n];
- fee = fee + feeArray[n];
+    if(value2 > 0){
+    vet x = {value1, value2};
+    vets.push_back(x);
+    }
+ }
+sort(vets.begin(), vets.end(), compare_vets);
 
- if (age != finalageArray[n+1])
- {
-float average=(float)fee/(float)n;
 
- cout << age <<"\t"<<n<<"\t"<< average <<"\t\t"<<eLevel<<endl;
- fee = 0;}
-n++;
 
-}
-// stopping the clock at this time
-  stop = clock();
-  cout<< "\ntime: "<<(double(stop-start)/CLOCKS_PER_SEC)<<" seconds"<<endl;
-      return 0;
+ while(EF >> value1 >> value2 >> value3){
+
+ int dogAge_Dogs = binary_search_dogs(dog, value2);
+ int eLevel_Vets  = binary_search_vets(vets, value1);
+  if (dogAge_Dogs > 8 && eLevel_Vets > -1){
+
+        found v = {value2, dogAge_Dogs, value1, value3, eLevel_Vets};
+        foundx.push_back(v);
 }
 
-int binarySearch(vector<int>& V1, int num){
+     }
+    sort(foundx.begin(), foundx.end(), compare_found);
 
-   int mid, first = 0; int last = V1.size();
-
-while (first < last){
-        mid = first + (last - first)/2;
-        if (num > V1[mid])
-          first = mid+1;
-        else if (num < V1[mid]) last = mid;
-        else return mid;
-                    }
-          return -1;
-      }
- void quickSort(vector<int>& V1,vector<int>& V2,  int left, int right)
-{
-  int i = left, j = right;
-  int tmp;
-   int pivot = V1[(left + right) / 2];
-
-  /* partition */
-while (i <= j) {
-     while (V1[i] < pivot)
-         i++;
-     while (V1[j] > pivot)
-         j--;
-      if (i <= j) {
-          tmp = V1[i];
-          V1[i] = V1[j];
-          V1[j] = tmp;
-
-          tmp = V2[i];
-          V2[i] = V2[j];
-          V2[j] = tmp;
+    cout << "Calculating....\n" << endl;
 
 
-             i++;
-            j--;
-       }
-    };
-       /* recursion */
-     if (left < j)
-         quickSort(V1, V2, left, j);
-   if (i < right)
-quickSort(V1, V2,i, right);
+ int unique_dog_1 =0, unique_dog_2 = 0, unique_dog_3 = 0, unique_dog_4 = 0;
+
+    DF.close();
+    EF.close();
+    VF.close();
+    dog.clear();
+    vets.clear();
+
+
+     float q =0, w=0, r =0, z=0;
+     float avg_9 = 0, avg_10 = 0, avg_11 = 0, avg_12 = 0;
+     for(int i=0; i < foundx.size(); i++){
+
+
+           if(foundx[i].age== 9 ){
+            q = q + foundx[i].elevel;
+            unique_dog_1++;
+            avg_9 = avg_9 + foundx[i].fee;
+            }
+           else if (foundx[i].age == 10){
+            w = w + foundx[i].elevel;
+             unique_dog_2 ++;
+            avg_10 = avg_10 + foundx[i].fee;
+            }
+           else if (foundx[i].age== 11){
+            r = r + foundx[i].elevel;
+            unique_dog_3++;
+            avg_11 = avg_11 + foundx[i].fee;
+            }
+           else if(foundx[i].age == 12){
+             z = z + foundx[i].elevel;
+             unique_dog_4++;
+             avg_12 = avg_12 + foundx[i].fee;
+             }
+
+
+
+     }
+
+      cout << "Age Group  " << "Count  " << " AVG Fee   " << "  AVG Elevel" << endl;
+      cout << "9          " << unique_dog_1 << "  " << (avg_9 / unique_dog_1)<< "     " << (q / unique_dog_1)<< "  "<<endl;
+      cout << "10         " << unique_dog_2 << "  "<< (avg_10 /unique_dog_2)<<  "      " << (w /unique_dog_2)<< "  "<<endl;
+      cout << "11         " << unique_dog_3 << "  " << (avg_11 /unique_dog_3)<< "     " << (r /unique_dog_3)<< "  " << endl;
+      cout << "12         " << unique_dog_4 << "  "<< (avg_12 / unique_dog_4)<< "     " << (z / unique_dog_4)<< "  "<<endl;
+
+
+      int stop_s=clock();
+      cout << "\n\nExecution time: " << (stop_s-start_s)/double(CLOCKS_PER_SEC) << endl;
+  return 0;
+
 }
+
+
 
